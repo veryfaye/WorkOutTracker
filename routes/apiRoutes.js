@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Workout = require("../models/workout.js");
+const ObjectId = require("mongoose").Types.ObjectId;
 
 //create a new work out
 router.post("/api/workouts", ({ body }, res) => {
@@ -14,7 +15,15 @@ router.post("/api/workouts", ({ body }, res) => {
 
 //Get work outs sorted decending by date
 router.get("/api/workouts", (req, res) => {
-  Workout.find({})
+  Workout.aggregate([
+    {
+      $addFields: {
+        totalDuration: {
+          $sum: "$exercises.duration",
+        },
+      },
+    },
+  ])
     .sort({ date: -1 })
     .then((dbWorkout) => {
       res.json(dbWorkout);
@@ -26,11 +35,12 @@ router.get("/api/workouts", (req, res) => {
 
 //update one excercise
 router.put("/api/workouts/:id", (req, res) => {
-    console.log(req.params);
-    console.log(req.body);
+  console.log(req.params);
+  console.log(req.body);
   Workout.findOneAndUpdate(
     { _id: ObjectId(req.params.id) },
-    { $push: { exercises: req.body } }
+    { $push: { exercises: req.body } },
+    { new: true }
   )
     .then((dbWorkout) => {
       res.json(dbWorkout);
