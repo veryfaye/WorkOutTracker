@@ -35,8 +35,6 @@ router.get("/api/workouts", (req, res) => {
 
 //update one excercise
 router.put("/api/workouts/:id", (req, res) => {
-  console.log(req.params);
-  console.log(req.body);
   Workout.findOneAndUpdate(
     { _id: ObjectId(req.params.id) },
     { $push: { exercises: req.body } },
